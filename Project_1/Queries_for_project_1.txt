@@ -1,0 +1,101 @@
+*** WORKSET_1, Q1: ***
+** Insight_1 **
+We want to understand more about the movies that families are watching. The following categories are considered family movies: Animation, Children, Classics, Comedy, Family and Music.
+
+Create a query that lists each movie, the film category it is classified in, and the number of times it has been rented out.
+
+SOLUTION:
+
+WITH T1 AS (
+            SELECT f.title AS film_name, 
+                   c.name AS category_name,
+		   COUNT(*) AS rental_count
+              FROM film AS f
+              JOIN film_category AS fc
+                ON fc.film_id = f.film_id
+              JOIN category AS c
+                ON c.category_id = fc.category_id
+              JOIN inventory AS i
+                ON i.film_id = f.film_id
+	      JOIN rental AS r
+                ON r.inventory_id = i.inventory_id 
+	     GROUP BY film_name, category_name 
+            HAVING c.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music'))
+
+SELECT * 
+  FROM T1
+ ORDER BY category_name, film_name;
+
+*** WORKSET_1, Q2: ***
+** Insight_2 **
+Now we need to know how the length of rental duration of these family-friendly movies compares to the duration that all movies are rented for. Can you provide a table with the movie titles and divide them into 4 levels (first_quarter, second_quarter, third_quarter, and final_quarter) based on the quartiles (25%, 50%, 75%) of the average rental duration(in the number of days) for movies across all categories? Make sure to also indicate the category that these family-friendly movies fall into.
+
+SOLUTION:
+
+WITH T1 AS (
+    SELECT f.title, 
+           c.name, 
+           f.rental_duration,
+           NTILE(4) OVER (ORDER BY f.rental_duration) AS rental_quartile
+    FROM film AS f
+    JOIN film_category AS fc 
+      ON fc.film_id = f.film_id
+    JOIN category AS c 
+      ON c.category_id = fc.category_id
+    WHERE c.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+)
+
+SELECT title, name, rental_duration, rental_quartile
+ FROM T1
+ ORDER BY rental_duration;
+
+*** WORKSET_2, Q1: ***
+** Insight_3 **
+We want to find out how the two stores compare in their count of rental orders during every month for all the years we have data for. Write a query that returns the store ID for the store, the year and month and the number of rental orders each store has fulfilled for that month. Your table should include a column for each of the following: year, month, store ID and count of rental orders fulfilled during that month.
+
+SOLUTION:
+
+SELECT DATE_PART('month', r.rental_date) AS rental_month,
+       DATE_PART('year', r.rental_date) AS rental_year,
+	   s.store_id,
+	   COUNT(r.rental_id) AS count_rentals
+  FROM inventory AS i
+  JOIN store AS s
+    ON i.store_id = s.store_id
+  JOIN rental AS r
+    ON r.inventory_id = i.inventory_id
+ GROUP BY rental_month, rental_year, s.store_id
+ ORDER BY count_rentals DESC;
+
+*** WORKSET_2, Q2: ***
+** Insight_4 **
+We would like to know who were our top 10 paying customers, how many payments they made on a monthly basis during 2007, and what was the amount of the monthly payments. Can you write a query to capture the customer name, month and year of payment, and total payment amount for each month by these top 10 paying customers?
+
+SOLUTION:
+
+WITH T1 AS (  
+    SELECT c.customer_id,
+           c.first_name || ' ' || c.last_name AS fullname,
+           SUM(p.amount) AS total_spent
+      FROM payment AS p
+      JOIN customer AS c
+        ON c.customer_id = p.customer_id
+     GROUP BY c.customer_id, fullname
+     ORDER BY total_spent DESC  
+     LIMIT 10 ),
+
+     T2 AS (  
+    SELECT DATE_TRUNC('month', p.payment_date) AS pay_mon,
+           T1.fullname,
+           COUNT(p.payment_id) AS pay_countpermon,
+           SUM(p.amount) AS pay_amount
+      FROM payment AS p
+      JOIN T1 
+        ON T1.customer_id = p.customer_id
+     WHERE EXTRACT(YEAR FROM p.payment_date) = 2007  
+     GROUP BY pay_mon, T1.fullname
+     ORDER BY T1.fullname, pay_mon)
+
+SELECT * FROM T2;
+
+END OF Project_1

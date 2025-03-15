@@ -1,0 +1,16 @@
+WITH T1 AS (
+    SELECT f.title, 
+           c.name, 
+           f.rental_duration,
+           NTILE(4) OVER (ORDER BY f.rental_duration) AS rental_quartile
+    FROM film AS f
+    JOIN film_category AS fc 
+      ON fc.film_id = f.film_id
+    JOIN category AS c 
+      ON c.category_id = fc.category_id
+    WHERE c.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music')
+)
+
+SELECT title, name, rental_duration, rental_quartile
+ FROM T1
+ ORDER BY rental_duration;

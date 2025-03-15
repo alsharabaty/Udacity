@@ -1,0 +1,24 @@
+WITH T1 AS (  
+    SELECT c.customer_id,
+           c.first_name || ' ' || c.last_name AS fullname,
+           SUM(p.amount) AS total_spent
+      FROM payment AS p
+      JOIN customer AS c
+        ON c.customer_id = p.customer_id
+     GROUP BY c.customer_id, fullname
+     ORDER BY total_spent DESC  
+     LIMIT 10 ),
+
+     T2 AS (  
+    SELECT DATE_TRUNC('month', p.payment_date) AS pay_mon,
+           T1.fullname,
+           COUNT(p.payment_id) AS pay_countpermon,
+           SUM(p.amount) AS pay_amount
+      FROM payment AS p
+      JOIN T1 
+        ON T1.customer_id = p.customer_id
+     WHERE EXTRACT(YEAR FROM p.payment_date) = 2007  
+     GROUP BY pay_mon, T1.fullname
+     ORDER BY T1.fullname, pay_mon)
+
+SELECT * FROM T2;

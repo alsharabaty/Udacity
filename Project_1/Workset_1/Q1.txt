@@ -1,0 +1,19 @@
+WITH T1 AS (
+            SELECT f.title AS film_name, 
+                   c.name AS category_name,
+		   COUNT(*) AS rental_count
+              FROM film AS f
+              JOIN film_category AS fc
+                ON fc.film_id = f.film_id
+              JOIN category AS c
+                ON c.category_id = fc.category_id
+              JOIN inventory AS i
+                ON i.film_id = f.film_id
+	      JOIN rental AS r
+                ON r.inventory_id = i.inventory_id 
+	     GROUP BY film_name, category_name 
+            HAVING c.name IN ('Animation', 'Children', 'Classics', 'Comedy', 'Family', 'Music'))
+
+SELECT * 
+  FROM T1
+ ORDER BY category_name, film_name;
