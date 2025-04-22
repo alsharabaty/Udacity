@@ -125,24 +125,35 @@ def user_stats(df):
     start_time = time.time()
 
     df['User Type'] = df['User Type'].fillna('Unknown')
-    df["Gender"] = df['Gender'].fillna('Unknown')
-    df["Birth Year"] = df['Birth Year'].fillna(df['Birth Year'].mean())
+    
+    try:
+        df["Gender"] = df['Gender'].fillna('Unknown')
+        df["Birth Year"] = df['Birth Year'].fillna(df['Birth Year'].mean())
+    except:
+        print("No Gender or Birth Year data available.")
 
     # TO DO: Display counts of user types
+
     user_types = df['User Type'].value_counts()
     print(f"Counts of user types: \n{user_types}")
 
     # TO DO: Display counts of gender
-    gender_counts = df["Gender"].value_counts()
-    print(f"Counts of user gender: \n{gender_counts}")
+    try:
+        gender_counts = df["Gender"].value_counts()
+        print(f"Counts of user gender: \n{gender_counts}")
+    except:
+        print("No Gender data available.")
 
     # TO DO: Display earliest, most recent, and most common year of birth
-    earliest_year = df['Birth Year'].min()
-    most_recent_year = df['Birth Year'].max()
-    most_common_year = df['Birth Year'].mode()[0]
-    print(f"The earliest year of birth is: {earliest_year}")
-    print(f"The most recent year of birth is: {most_recent_year}")
-    print(f"The most common year of birth is: {most_common_year}")
+    try:
+        earliest_year = int(df['Birth Year'].min())
+        most_recent_year = int(df['Birth Year'].max())
+        most_common_year = int(df['Birth Year'].mode()[0])
+        print(f"The earliest year of birth is: {earliest_year}")
+        print(f"The most recent year of birth is: {most_recent_year}")
+        print(f"The most common year of birth is: {most_common_year}")
+    except:
+        print("No Birth Year data available.")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
