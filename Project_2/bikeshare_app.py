@@ -9,7 +9,8 @@ def load_data(city):
         'New York City': 'new_york_city.csv',
         'Washington': 'washington.csv'
     }
-    path = os.path.join("databases", city_csv[city])
+    
+    path = os.path.join(os.path.dirname(__file__), "..", "databases", city_csv[city])
     df = pd.read_csv(path)
     df.columns = df.columns.str.strip()  # Clean column names
     df['Start Time'] = pd.to_datetime(df['Start Time'])
