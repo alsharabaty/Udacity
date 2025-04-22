@@ -4,6 +4,7 @@ from filters import cities as ct, months as mt, days as dy
 from loading_data import month_filtering as mf, day_filtering as df
 from time_stat import common_month as cm, common_day as cd, common_hour as ch
 
+
 def get_filters():
     
     """
@@ -15,14 +16,15 @@ def get_filters():
         (str) day - name of the day of week to filter by, or "all" to apply no day filter
     """
     
+    print('Hello! Let\'s explore some US bikeshare data!')
     print('-'* 40)
     
     city_dataframe = ct.city_data()
-    month_filter = mt.months_f()
-    day_filter = dy.days_f()
+    m_filter = mt.months_f()
+    d_filter = dy.days_f()
 
     print('-'* 40)
-    return city_dataframe, month_filter, day_filter
+    return city_dataframe, m_filter, d_filter
 
 
 def load_data(city, month, day):
@@ -37,7 +39,6 @@ def load_data(city, month, day):
         df - Pandas DataFrame containing city data filtered by month and day
     """
     
-    # load data file into a dataframe
     city['Start Time'] = pd.to_datetime(city['Start Time'])
     city['End Time'] = pd.to_datetime(city['End Time'])
     
@@ -48,10 +49,6 @@ def load_data(city, month, day):
 
     # filter by day of week to create the new dataframe
     city = df.day_filtering(city, day)
-    
-    if city.empty:
-            print("Oops! No data found for your filter. Try another month or day.")
-            get_filters()
     
     return city
 
@@ -149,84 +146,28 @@ def user_stats(df):
 
 
 def main():
-    
-    print('Hello! Let\'s explore some US bikeshare data!')
-    print('-'*40)
-    
     while True:
         city, month, day = get_filters()
         df = load_data(city, month, day)
-            
-        print('-'*40)
         
-        view_data = input('\nWould you like to view rows of individual trip data? Enter yes or no.\n')
-        while True:
-            if view_data.lower() == 'yes':
-                start_loc = 0
-                while True:
-                    try:
-                        to_show = int(input("How many rows do you want to see? (5, 10, 15, etc.)\n"))
-                        if to_show <= 0:
-                            print("Please enter a positive number.")
-                            continue
-                        if to_show > 0:
-                            break
-                    except ValueError:
-                        print("Please enter a valid number.")
-                        continue
-                    
-                while True:
-                    if view_data.lower() == 'yes':
-                        print(df.iloc[start_loc:start_loc + to_show])
-                        start_loc += to_show
-                        view_data = input('Do you wish to continue? Enter yes or no.\n')
-
-                        while True:
-                            if view_data.lower() == 'yes':
-                                break
-                            if view_data.lower() == 'no':
-                                break
-                            else:
-                                print("Please enter a valid response (yes or no).")
-                                view_data = input('Do you wish to continue? Enter yes or no.\n')
-                                continue
-                    if view_data.lower() == 'no':
-                        break
-                    
-            elif view_data.lower() == 'no':
-                break
-            else:
-                print("Please enter a valid response (yes or no).")
-                view_data = input('\nWould you like to view rows of individual trip data? Enter yes or no.\n')
-                continue
-    
-        print('-'*40)
+        if df.empty:
+            print("Oops! No data found for your filter. Try another month or day.")
             
-        show_stats = input('\nWould you like to see the statistics? Enter yes or no.\n')
+        view_data = input('\nWould you like to view 5 rows of individual trip data? Enter yes or no.\n')
         
-        if show_stats.lower() == 'yes':
-            print('-'*40)
-            time_stats(df)
-            station_stats(df)
-            trip_duration_stats(df)
-            user_stats(df)
-            print('-'*40)
-        elif show_stats.lower() == 'no':
-            print("Okay, no statistics will be shown.")
-            print('-'*40)
-        else:
-            print("Please enter a valid response (yes or no).")
-            show_stats = input('\nWould you like to see the statistics? Enter yes or no.\n')
-            continue
+        if view_data.lower() == 'yes':
+            print(df.head(5))
+            print(df.info())
+            
+        time_stats(df)
+        station_stats(df)
+        trip_duration_stats(df)
+        user_stats(df)
         # print(df.head())
         # print(df.info())
 
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
-            print('-'*40)
-            print("Exiting the program...")
-            print("Thank you for using the bikeshare data analysis tool!")
-            print('-'*40)
             break
 
 
