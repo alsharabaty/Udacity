@@ -6,3 +6,5 @@ def common_month(city):
     most_common_month = city['month'].mode()[0]
     print(f"The most common month is: {most_common_month}")
     
+    return most_common_month
+    

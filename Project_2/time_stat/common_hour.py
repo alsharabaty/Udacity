@@ -6,3 +6,4 @@ def common_hour(city):
     most_common_hour = city['hour'].mode()[0]
     print(f"The most common start hour is: {most_common_hour}")
     
+    return most_common_hour
